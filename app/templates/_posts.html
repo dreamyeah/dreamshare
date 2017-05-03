@@ -1,0 +1,64 @@
+<ul class="posts">
+    {% for post in posts %}
+    <li class="post">
+        <div class="post-thumbnail">
+            <a href="{{ url_for('.user', username=post.author.username) }}">
+                <img class="img-rounded profile-thumbnail" src="{{ post.author.gravatar(size=40) }}">
+            </a>
+        </div>
+        <div class="post-content">
+            <div class="date">{{ moment(post.timestamp).format('LL') }}</div>
+
+            <div class="post-body">
+            <div class="post-title">
+                <h1>        
+                    <a href="{{ url_for('.post', id=post.id) }} " style="text-decoration: none">{{ post.title}}</a>
+                </h1>
+                Posted by 
+                <a href="{{ url_for('.user', username=post.author.username) }}" style="text-decoration: none">
+                    <span class="label label-primary">{{ post.author.username }}</span>
+                </a>
+                under
+                {% for cat in post.categories.all() %}
+                <a href="{{ url_for('.category_posts', categoryname=cat.name) }}" style="text-decoration: none">
+                    <span class="label label-primary">{{cat.name}}</span>
+                </a>
+                {% endfor %}
+            </div>
+            <div class="posted">
+            
+                {% if post.body_html %} 
+                    {% if post_hidden %}
+                    <div class="post-hidden-line">
+                        {{ post.body_html |striptags|title }}
+                    </div>
+                    {% else %}
+                        {{ post.body_html | safe }}
+                    {% endif %}
+                {% else %}
+                    {{ post.body }}
+                {% endif %}
+                
+            
+            </div>
+            <div class="post-footer">
+                {% if current_user == post.author %}
+                <a href="{{ url_for('.edit', id=post.id) }}" style="text-decoration: none">
+                    <span class="label label-primary">Edit</span>
+                </a>
+                {% elif current_user.is_administrator() %}
+                <a href="{{ url_for('.edit', id=post.id) }}" style="text-decoration: none">
+                    <span class="label label-danger">Edit [Admin]</span>
+                </a>
+                {% endif %}
+                <a href="{{ url_for('.post', id=post.id) }}" style="text-decoration: none">
+                    <span class="label label-default">Permalink</span>
+                </a>
+                <a href="{{ url_for('.post', id=post.id) }}#comments" style="text-decoration: none">
+                    <span class="label label-primary">{{ post.comments.count() }} Comments</span>
+                </a>
+            </div>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
